@@ -3,6 +3,9 @@
 scanf_input_file_msg: .asciz "Enter the input file path: \n"
 
 .balign 4
+input_file_err_msg: .asciz "File name invalid. Program terminated. \n"
+
+.balign 4
 scanf_output_file_msg: .asciz "Enter the output file path: \n"
 
 .balign 4 
@@ -24,7 +27,7 @@ input_file_name: .skip 50
 output_file_name: .skip 50
 
 .balign 4
-scanpattern: .asciz " %[^\n]s" // this scan pattern was used to get a string (s) and ignore a new line.
+scanpattern: .asciz " %[^\n]s" // this scan pattern was used to get a string (s) and ignore a new line. This prevents spaces in the input from counting it as two input strings.
 
 .balign 4
 return : .word 0
@@ -60,7 +63,7 @@ load_file:
     ldr r1,=read_mode
     bl fopen
     cmp r0, #0x00
-    beq exit // exit if at end of file
+    beq error // exit if at end of file
     mov r7,r0 // store file pointer in r7
     mov r6,#0 // this will be the index of our array (and later used as the length)
 
@@ -140,6 +143,10 @@ exit:
     ldr lr,[lr]
     bx lr
 
+error:
+    ldr r0, =input_file_err_msg
+    bl printf
+    b exit
 
 .global printf
 .global scanf
