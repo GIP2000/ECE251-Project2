@@ -15,10 +15,7 @@ read_mode: .asciz "r" // regular read mode
 write_mode: .asciz "w+" // use w+ to create the output file in case it doesn't exist
 
 .balign 4 
-file_read_pattern: .asciz "%d\n" // pattern that writes a number and newline
-
-.balign 4
-file_write_pattern: .asciz "%d\n"
+file_pattern: .asciz "%d\n" // pattern that writes a number and newline
 
 .balign 4
 input_file_name: .skip 50
@@ -69,7 +66,7 @@ load_file:
 
 load_arr:
     mov r0,r7
-    ldr r1,=file_read_pattern
+    ldr r1,=file_pattern
     ldr r2,=number
     bl fscanf // scan file
     cmp r0,#1 // if at end of file, move onto sorting
@@ -115,9 +112,6 @@ check_fin:
     cmp r9,#1 // the sort is done if the flag was never raised
     beq bubble_sort_top // if a swap was made, start the sort from the top
 
-setup_output:
-    mov r5,#0 // reset r5 to be used as the index for printing to the output file
-
 output: 
     ldr r0,=output_file_name
     ldr r1,=write_mode
@@ -125,12 +119,12 @@ output:
     cmp r0, #0x00
     beq exit
     mov r7,r0
-    mov r5,#0
+    mov r5,#0 // reset r5 to be used as the index for printing to the output file
 
 write_loop:
     ldr r10,=array
     mov r0,r7
-    ldr r1,=file_write_pattern
+    ldr r1,=file_pattern
     ldr r2,[r10,r5,LSL #2] // load next item in the array
     bl fprintf
     add r5,r5,#1
